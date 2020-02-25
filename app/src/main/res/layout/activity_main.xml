@@ -1,18 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
+    <EditText
+        android:id="@+id/et_flightNum"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        android:ems="10"
+        android:hint="Enter Flight Number"
+        android:inputType="textPersonName" />
 
-</androidx.constraintlayout.widget.ConstraintLayout>
+    <TextView
+        android:id="@+id/text_view_date_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="35sp"
+        android:padding="20dp" />
+
+    <Button
+        android:id="@+id/button_date_1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Flight Date" />
+
+    <TextView
+        android:id="@+id/tv_flightTimeDisplay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textSize="35sp"
+        android:paddingTop="30dp"
+        tools:text="hh:mm" />
+
+    <Button
+        android:id="@+id/button_flightTime"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Flight Time" />
+
+    <Button
+        android:id="@+id/button_checkFlight"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="250sp"
+        android:text="Check Flight" />
+
+</LinearLayout>
