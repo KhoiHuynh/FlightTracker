@@ -1,19 +1,26 @@
 package com.example.flighttracker
 
-import android.os.Bundle
-import android.widget.TextView
-import android.view.View
-import android.widget.Button
-import java.util.*
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.os.Bundle
+import android.util.Log
+import android.widget.Button
 import android.widget.DatePicker
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import java.text.SimpleDateFormat
+import com.google.gson.GsonBuilder
 import kotlinx.android.synthetic.main.activity_main.*
 import okhttp3.*
 import java.io.IOException
+import java.text.SimpleDateFormat
+import java.util.*
+import androidx.core.app.ComponentActivity
+import androidx.core.app.ComponentActivity.ExtraData
+import androidx.core.content.ContextCompat.getSystemService
+import android.icu.lang.UCharacter.GraphemeClusterBreak.T
+
+
 
 class MainActivity : AppCompatActivity() {
 
@@ -49,13 +56,15 @@ class MainActivity : AppCompatActivity() {
             override fun onDateSet(view: DatePicker, year: Int, monthOfYear: Int,
                                    dayOfMonth: Int) {
                 day = dayOfMonth.toString()
-                month = monthOfYear.toString()
+                month = (monthOfYear + 1).toString()
                 thisYear = year.toString()
 
                 cal.set(Calendar.YEAR, year)
                 cal.set(Calendar.MONTH, monthOfYear)
                 cal.set(Calendar.DAY_OF_MONTH, dayOfMonth)
                 updateDateInView()
+
+                Log.d("KHOIKHOI", "the month is: " + month)
             }
         }
 
@@ -75,19 +84,16 @@ class MainActivity : AppCompatActivity() {
             val minute = c.get(Calendar.MINUTE)
             TimePickerDialog(this@MainActivity, TimePickerDialog.OnTimeSetListener(function = { _, h, m ->
                 min = m.toString()
-                var hourss = h
+                hours = h.toString()
 
-                var AM_PM: String
-                if(h < 12) {
-                    AM_PM = "AM"
-
-                } else {
-                    AM_PM = "PM"
-                    hourss -= 12
+                if(hours?.length == 1){
+                    hours = "0$hours"
                 }
-                hours = hourss.toString()
+                if(min?.length == 1){
+                    min = "0$min"
+                }
 
-                displayTime = "$hour : $m $AM_PM"
+                displayTime = "$hours : $min"
 
                 tv_flightTimeDisplay!!.text = displayTime
 
@@ -99,19 +105,53 @@ class MainActivity : AppCompatActivity() {
         button_checkFlight.setOnClickListener{
             getResponseParams(day, month, thisYear, hours, min)
             val getFlightNum = et_flightNum.text.toString()
-            run("http://aviation-edge.com/v2/public/timetable?key=0ec8de-61e660&dep_schTime=2020-02-24T20:20:00.000&flight_iata=vn158")
+            Log.d("KhoiKhoi", "https://aviation-edge.com/v2/public/timetable?key=0ec8de-61e660&dep_schTime=$fullDateFormat&flight_iata=$getFlightNum")
+            run("https://aviation-edge.com/v2/public/timetable?key=0ec8de-61e660&dep_schTime=$fullDateFormat&flight_iata=$getFlightNum")
         }
 
     }
 
     private fun run (url:String){
-        val request = Request.Builder()
-            .url(url)
-            .build()
+        val request = Request.Builder().url(url).build()
 
         client.newCall(request).enqueue(object : Callback {
-            override fun onFailure(call: Call, e: IOException) {}
-            override fun onResponse(call: Call, response: Response) = println(response.body?.string())
+            override fun onFailure(call: Call, e: IOException) {
+                Log.d("KHOIKHOI", e.toString())
+            }
+            override fun onResponse(call: Call, response: Response){
+//                Log.d("KHOIKHOI", response.body?.string())
+//                val body = response.body?.string()
+//                val gson = GsonBuilder().create()
+//                val flightDetails = gson.fromJson(body, Models.FlightDetails::class.java)
+
+                val bundle = Bundle()
+                bundle.putString("json", response.body?.string())
+                // set Fragmentclass Arguments
+                val fragobj = FlightInfoFrag()
+                fragobj.arguments = bundle
+
+                runOnUiThread {
+
+
+
+//                    if(flightDetails.actualRunway != null){
+//                        Log.d("KHOIKHOII", flightDetails.actualRunway)
+//                    }
+//                    if(flightDetails.estimatedRunway != null){
+//                        Log.d("KHOIKHOII", flightDetails.estimatedRunway)
+//                    }
+//                    if(flightDetails.scheduledTime != null){
+//                        Log.d("KHOIKHOII", flightDetails.scheduledTime)
+//                    }
+//                    if(flightDetails.status != null){
+//                        Log.d("KHOIKHOII", flightDetails.status)
+//                    }
+//
+//                    else{
+//                        Log.d("KHOIKHOI", "it's fucking null")
+//                    }
+                }
+            }
         })
     }
 
@@ -133,14 +173,8 @@ class MainActivity : AppCompatActivity() {
         if(day?.length == 1){
             dayz = "0$day"
         }
-        if(hour?.length == 1){
-            hourz = "0$hour"
-        }
-        if(min?.length == 1){
-            minz = "0$min"
-        }
 
-        fullDateFormat = year + "-" + monthz + "-" + dayz + "T" + hourz + ":" + minz + ".000"
+        fullDateFormat = year + "-" + monthz + "-" + dayz + "T" + hourz + ":" + minz + ":00.000"
 
 
         Toast.makeText(this, fullDateFormat, Toast.LENGTH_LONG).show()
